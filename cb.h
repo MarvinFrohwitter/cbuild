@@ -1,10 +1,9 @@
 #ifndef CB_H_
 #define CB_H_
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <sys/types.h>
-#include <stdbool.h>
-
 
 typedef struct {
   const char **elements;
@@ -77,7 +76,7 @@ void cb__cmd_push(Cmd *cmd, ...);
 pid_t cb_run_async(Cmd *cmd);
 bool cb_wait(pid_t pid);
 bool cb_run_sync(Cmd *cmd);
-bool check_char_is_safe(char c);
+bool cb_check_char_is_safe(char c);
 
 #define cb_cmd_push(cmd, ...) cb__cmd_push(cmd, __VA_ARGS__, NULL)
 #define LIBS(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
@@ -119,6 +118,7 @@ void cb__cmd_push(Cmd *cmd, ...) {
       }
       dap(&cmd_string, '\"');
       dap(&cmd_string, '\0');
+      // TODO: Check why execvp can not handle the new constructed cmd_string.
       dap(cmd, cmd_string.elements);
     } else {
       dap(cmd, arg);
@@ -197,7 +197,7 @@ bool cb_run_sync(Cmd *cmd) {
   return cb_wait(pid);
 }
 
-bool check_char_is_safe(char c) {
+bool cb_check_char_is_safe(char c) {
   char *unsafe_chars = "$_-+=:,.@%/";
 
   while ('\0' == *unsafe_chars) {
