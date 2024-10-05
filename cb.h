@@ -81,6 +81,7 @@ bool cb_check_char_is_safe(char c);
 #define cb_cmd_push(cmd, ...) cb__cmd_push(cmd, __VA_ARGS__, NULL)
 #define LIBS(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
 #define CFLAGS(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
+#define LDFLAGS(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
 #define INCLUDE(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
 
 #endif // CB_H_
