@@ -68,9 +68,10 @@ typedef struct {
           abort();                                                             \
         }                                                                      \
       }                                                                        \
-      memcpy((dynamic_array)->elements + (dynamic_array)->count, new_elements, \
-             sizeof(*(dynamic_array)->elements) * new_elements_count);         \
-      (dynamic_array)->count = (dynamic_array)->count + new_elements_count;    \
+      memcpy((dynamic_array)->elements + (dynamic_array)->count,               \
+             (new_elements),                                                   \
+             sizeof(*(dynamic_array)->elements) * (new_elements_count));       \
+      (dynamic_array)->count = (dynamic_array)->count + (new_elements_count);  \
     }                                                                          \
   } while (0)
 
