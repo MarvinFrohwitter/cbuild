@@ -47,7 +47,7 @@ typedef struct {
 
 #define dapc(dynamic_array, new_elements, new_elements_count)                  \
   do {                                                                         \
-    if (new_elements != NULL) {                                                \
+    if ((new_elements) != NULL) {                                              \
       if ((dynamic_array)->capacity <                                          \
           (dynamic_array)->count + new_elements_count) {                       \
         if ((dynamic_array)->capacity == 0) {                                  \
@@ -106,35 +106,13 @@ void cb__cmd_push(Cmd *cmd, ...) {
   va_start(args, cmd);
   const char *arg = va_arg(args, const char *);
   while (arg != NULL) {
-    bool safe = true;
-    for (size_t i = 0; i < strlen(arg); ++i) {
-      if (!check_char_is_safe(arg[i])) {
-        safe = false;
-        break;
-      }
-    }
-
-    if (!safe) {
-      Cmd_String cmd_string = {0};
-      dap(&cmd_string, '\"');
-      for (size_t i = 0; i < strlen(arg); ++i) {
-        dap(&cmd_string, arg[i]);
-      }
-      dap(&cmd_string, '\"');
-      dap(&cmd_string, '\0');
-      // TODO: Check why execvp can not handle the new constructed cmd_string.
-      dap(cmd, cmd_string.elements);
-    } else {
-      dap(cmd, arg);
-    }
-
+    dap(cmd, arg);
     arg = va_arg(args, const char *);
   }
   va_end(args);
 }
 
 pid_t cb_run_async(Cmd *cmd) {
-
   Cmd_String cmd_string = {0};
   for (size_t i = 0; i < cmd->count; ++i) {
     dapc(&cmd_string, cmd->elements[i], strlen(cmd->elements[i]));
@@ -151,8 +129,12 @@ pid_t cb_run_async(Cmd *cmd) {
     return -1;
   }
 
+  Cmd out_cmd = {0};
+  dapc(&out_cmd, cmd->elements, cmd->count);
+  dap(&out_cmd, NULL);
+
   if (0 == pid) {
-    int ret = execvp(cmd->elements[0], (char *const *)cmd->elements);
+    int ret = execvp(out_cmd.elements[0], (char *const *)out_cmd.elements);
     if (ret < 0) {
       fprintf(stderr, "[ERROR]: The execvp has failed with:%s\n",
               strerror(errno));
@@ -160,6 +142,7 @@ pid_t cb_run_async(Cmd *cmd) {
     }
     assert(0 && "UNREACHABLE: Possible bug in kernel or libc!");
   } else {
+    // If some time you don't want to reset disable it.
     cmd->count = 0;
   }
 
@@ -204,7 +187,7 @@ bool cb_run_sync(Cmd *cmd) {
 bool cb_check_char_is_safe(char c) {
   char *unsafe_chars = "$_-+=:,.@%/";
 
-  while ('\0' == *unsafe_chars) {
+  while (*unsafe_chars) {
     if (c == *unsafe_chars) {
       return false;
     }
