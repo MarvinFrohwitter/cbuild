@@ -79,7 +79,7 @@ void cb__cmd_push(Cmd *cmd, ...);
 pid_t cb_run_async(Cmd *cmd);
 bool cb_wait(pid_t pid);
 bool cb_run_sync(Cmd *cmd);
-bool cb_check_char_is_safe(char c);
+bool cb_check_char_is_safe(unsigned char c);
 
 #define cb_cmd_push(cmd, ...) cb__cmd_push(cmd, __VA_ARGS__, NULL)
 #define LIBS(cmd, ...) cb_cmd_push(cmd, __VA_ARGS__)
@@ -184,8 +184,8 @@ bool cb_run_sync(Cmd *cmd) {
   return cb_wait(pid);
 }
 
-bool cb_check_char_is_safe(char c) {
-  char *unsafe_chars = "$_-+=:,.@%/";
+bool cb_check_char_is_safe(unsigned char c) {
+  unsigned char *unsafe_chars = "$_-+=:,.@%/";
 
   while (*unsafe_chars) {
     if (c == *unsafe_chars) {
