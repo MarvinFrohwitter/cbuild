@@ -185,7 +185,7 @@ bool cb_run_sync(Cmd *cmd) {
 }
 
 bool cb_check_char_is_safe(unsigned char c) {
-  unsigned char *unsafe_chars = "$_-+=:,.@%/";
+  unsigned char *unsafe_chars = (unsigned char *)"$_-+=:,.@%/";
 
   while (*unsafe_chars) {
     if (c == *unsafe_chars) {
